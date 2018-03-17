@@ -5,7 +5,7 @@ function [cost,gift_owned,gifted] =make_presents(state)
     n_friends=(length(state)+1)/2;
     x=state(1:n_friends); %these are the first n_friends, and they represents the people I visit
     if (length(unique(x))<n_friends)% we want to go to all friends, so I penalise heavily if not do so
-        cost=n_friends^2;
+        cost=n_friends;
         return;
     end
     decision=state(n_friends:end)-0.5;% this variable says, when I can choose among different presents  (i.e. in the else below) which present I gift. It has not effect in the ''if'' case below. But in general I cannot predict a priori if it is needed or not.

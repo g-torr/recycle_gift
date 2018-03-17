@@ -9,7 +9,7 @@ clear
 %_______________________________________________________
 % I Setup the GA
 ff='make_presents'; % objective function
-n_friends=8;
+n_friends=12;
 npar=2*n_friends-1; % number of optimization variables
 varhi=.5; varlo=n_friends+0.4999; % variable limits
 %_______________________________________________________
@@ -18,7 +18,7 @@ maxit=10000; % max number of iterations
 mincost=0.1; % minimum cost
 %_______________________________________________________
 % III GA parameters
-popsize=4; % set population size
+popsize=20; % set population size
 mutrate=.1; % set mutation rate
 selection=0.5; % fraction of population kept
 Nt=npar; % continuous parameter GA Nt=#variables
