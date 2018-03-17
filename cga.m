@@ -9,7 +9,7 @@ clear
 %_______________________________________________________
 % I Setup the GA
 ff='make_presents'; % objective function
-n_friends=15;
+n_friends=6;
 npar=2*n_friends-1; % number of optimization variables
 varhi=.5; varlo=n_friends+0.4999; % variable limits
 %_______________________________________________________
