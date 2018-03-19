@@ -1,56 +1,56 @@
-% Continuous Genetic Algorithm
+% Binary Genetic Algorithm
 %
 % minimizes the objective function designated in ff
-% Before beginning, set all the parameters in parts
-% I, II, and III
+% Before beginning, set all the parameters in parts I, II, and III
 % Haupt & Haupt
 % 2003
 clear
 %_______________________________________________________
-% I Setup the GA
+% I. Setup the GA
 ff='make_presents'; % objective function
 n_friends=8;
 npar=2*n_friends-1; % number of optimization variables
 varhi=.5; varlo=n_friends+0.4999; % variable limits
 %_______________________________________________________
-% II Stopping criteria
-maxit=10000; % max number of iterations
-mincost=0.1; % minimum cost
+% II. Stopping criteria
+maxit=5000; % max number of iterations
+mincost=-9999999; % minimum cost
 %_______________________________________________________
-% III GA parameters
+% III. GA parameters
 popsize=12; % set population size
-mutrate=.05; % set mutation rate
+mutrate=0.05; % set mutation rate
 selection=0.5; % fraction of population kept
-Nt=npar; % continuous parameter GA Nt=#variables
+nbits=4; % number of bits in each parameter
+Nt=nbits*npar; % total number of bits in a chormosome
 keep=floor(selection*popsize); % #population members that survive
-nmut=ceil((popsize-1)*Nt*mutrate); % total number of mutations
-M=ceil((popsize-keep)/2); % number of matings
-%_______________________________________________________
-% Create the initial population
-iga=0; % generation counter initialized
-par=zeros(popsize,npar);
-for i=1:popsize
-    par(i,:)=[randperm(n_friends) ceil(n_friends*rand(1,n_friends-1))]; % random
-end
+best_costs=zeros(10,1);
 global neighbours
 load('neighbours.mat')
 if length(neighbours)~=n_friends
     error('There is a mismathc between the topology of social interaction and the problem: Please recreate the social interactions')
 end
-tic
 
-%cost=feval(ff,par); % calculates population cost using ff
+%--------------------here iteration starts---------
+for iteration=1:10
+tic
+%_______________________________________________________
+% Create the initial population
+iga=0; % generation counter initialized
+pop=round(rand(popsize,Nt)); % random population of 1s and 0s
+par=gadecode(pop,varlo,varhi,nbits); % convert binary to continuous values
+
+
+
+%cost=feval(ff,par); % calculates population
 [rr, cc] =size(par);
 for ii=1:rr
     cost(ii) = feval(ff,par(ii,:));
 end
 
-
-
-
+% cost using ff
 [cost,ind]=sort(cost); % min cost in element 1
-par=par(ind,:); % sort continuous
-minc(1)=min(cost); % minc contains min of
+par=par(ind,:);pop=pop(ind,:); % sorts population with lowest cost first
+minc(1)=min(cost); % minc contains min of population
 meanc(1)=mean(cost); % meanc contains mean of population
 %_______________________________________________________
 % Iterate through generations
@@ -59,7 +59,7 @@ while iga<maxit
     %_______________________________________________________
     % Pair and mate
     M=ceil((popsize-keep)/2); % number of matings
-    prob=flipud([1:keep]'/sum([1:keep])); % weights chromosomes
+    prob=flipud([1:keep]'/sum([1:keep]));% weights chromosomes based upon position in list
     odds=[0 cumsum(prob(1:keep))']; % probability distribution function
     pick1=rand(1,M); % mate #1
     pick2=rand(1,M); % mate #2
@@ -69,43 +69,37 @@ while iga<maxit
         for id=2:keep+1
             if pick1(ic)<=odds(id) & pick1(ic)>odds(id-1)
                 ma(ic)=id-1;
-            end
+            end % if
             if pick2(ic)<=odds(id) & pick2(ic)>odds(id-1)
                 pa(ic)=id-1;
-            end
-        end
+            end % if
+        end % id
         ic=ic+1;
-    end
+    end % while
     %_______________________________________________________
     % Performs mating using single point crossover
     ix=1:2:keep; % index of mate #1
-    xp=ceil(rand(1,M)*Nt); % crossover point
-    r=rand(1,M); % mixing parameter
-    for ic=1:M
-        xy=par(ma(ic),xp(ic))-par(pa(ic),xp(ic)); % ma and pa
-        % mate
-        par(keep+ix(ic),:)=par(ma(ic),:); % 1st offspring
-        par(keep+ix(ic)+1,:)=par(pa(ic),:); % 2nd offspring
-        par(keep+ix(ic),xp(ic))=par(ma(ic),xp(ic))-r(ic).*xy;
-        % 1st
-        par(keep+ix(ic)+1,xp(ic))=par(pa(ic),xp(ic))+r(ic).*xy;
-        % 2nd
-        if xp(ic)<npar % crossover when last variable not selected
-            par(keep+ix(ic),:)=[par(keep+ix(ic),1:xp(ic)) par(keep+ix(ic)+1,xp(ic)+1:npar)];
-            par(keep+ix(ic)+1,:)=[par(keep+ix(ic)+1,1:xp(ic)) par(keep+ix(ic),xp(ic)+1:npar)];
-        end % if
-    end
+    xp=ceil(rand(1,M)*(Nt-1)); % crossover point  
+    pop(keep+ix,:)=[pop(ma,1:xp) pop(pa,xp+1:Nt)];
+    % first offspring
+    pop(keep+ix+1,:)=[pop(pa,1:xp) pop(ma,xp+1:Nt)];
+    % second offspring
     %_______________________________________________________
     % Mutate the population
-    mrow=sort(ceil(rand(1,nmut)*(popsize-1))+1);
-    mcol=ceil(rand(1,nmut)*Nt);
+    nmut=ceil((popsize-1)*Nt*mutrate); % total number
+    % of mutations
+    mrow=ceil(rand(1,nmut)*(popsize-1))+1; % row to mutate
+    mcol=ceil(rand(1,nmut)*Nt); % column to mutate
     for ii=1:nmut
-        par(mrow(ii),mcol(ii))=(varhi-varlo)*rand+varlo;
-        % mutation
+        pop(mrow(ii),mcol(ii))=abs(pop(mrow(ii),mcol(ii))-1);
+        % toggles bits
     end % ii
     %_______________________________________________________
-    % The new offspring and mutated chromosomes are evaluated
-    %cost=feval(ff,par);
+    % The population is re-evaluated for cost
+    par(2:popsize,:)=gadecode(pop(2:popsize,:),varlo,varhi,nbits); % decode
+
+    
+    % cost(2:popsize)=feval(ff,par(2:popsize,:));
     [rr, cc] =size(par);
     for ii=2:rr
         cost(ii) = feval(ff,par(ii,:));
@@ -117,9 +111,8 @@ while iga<maxit
     
     %_______________________________________________________
     % Sort the costs and associated parameters
-    [cost,ind]=sort(cost);
-    par=par(ind,:);
-    %_______________________________________________________
+    [cost,ind]=sort(cost); % min cost in element 1
+    par=par(ind,:);pop=pop(ind,:); % sorts population with
     % Do statistics for a single nonaveraging run
     minc(iga+1)=min(cost);
     meanc(iga+1)=mean(cost);
@@ -130,22 +123,25 @@ while iga<maxit
     end
     [iga cost(1)];
 end %iga
+best_costs(iteration)=cost(1);
 toc
+end %-------iteration ends-------
 %_______________________________________________________
 % Displays the output
 day=clock;
-disp(datestr(datenum(day(1),day(2),day(3),day(4),day(5),day(6)),0))
+disp(datestr(datenum(day(1),day(2),day(3),day(4),day(5), day(6)),0))
 disp(['optimized function is ' ff])
 format short g
 disp(['popsize = ' num2str(popsize) ' mutrate = ' num2str(mutrate) ' # par = ' num2str(npar)])
 disp(['#generations=' num2str(iga) ' best cost=' num2str(cost(1))])
 disp(['best solution'])
 disp([num2str(par(1,:))])
-disp('continuous genetic algorithm')
+disp('binary genetic algorithm')
+disp(['each parameter represented by ' num2str(nbits) ' bits'])
 figure(24)
 iters=0:length(minc)-1;
 plot(iters,minc,iters,meanc,'-');
 xlabel('generation');ylabel('cost');
-title(['Continuous Genetic Algorithm; Function: ' ff]);
+title(['Binary Genetic Algorithm; Function: ' ff]);
 %text(0,minc(1),'best');text(1,minc(2),'population average')
 legend('best', 'population average');
