@@ -20,36 +20,10 @@ NF=NF-diag(diag(NF));
 
 G=digraph(F);
 p=plot(G,'Layout','circle');
-p.NodeLabel = {};
-p.ArrowSize=22;
-p.LineWidth=1.5;
-% Custom labels
-hold on
-names=string(1:n_friends);
-for i=1:length(names)
-    text(p.XData(i), p.YData(i), names(i), 'FontSize', 18);
-end
-ax=gca();
-ax.Visible= 'off';
-tightfig()
-saveas(gcf,'friendship.png')
-hold off
 
+figure()
 G2=digraph(NF);
 p2=plot(G2,'Layout','circle');
-p2.NodeLabel = {};
-p2.ArrowSize=22;
-p2.LineWidth=1.5;
-% Custom labels
-hold on
-names=string(1:n_friends);
-for i=1:length(names)
-    text(p2.XData(i), p2.YData(i), names(i), 'FontSize', 18);
-end
-ax=gca();
-ax.Visible= 'off';
-tightfig()
-print(gcf,'non-friendship','-dpng')
 end
 
 

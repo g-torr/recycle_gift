@@ -4,7 +4,7 @@
 clear
 ff = 'make_presents'; % Objective Function
 % Initializing variables
-popsize = 100; % Size of the swarm
+popsize = 20; % Size of the swarm
 n_friends=8;
 npar=2*n_friends-1; % number of optimization variables
 maxit = 1000; % Maximum number of iterations
