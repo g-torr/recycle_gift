@@ -6,9 +6,6 @@ This project try to find the optimal way to recycle gift, in order to satisfy th
 3. Then, choose the algorithm for minimisation. The coursework asked to repeat the simulation 10 times, therefore: 'many_cga' 'bga' 'many_pso' and 'es1p1' contains 10 repetition of the same code to evaluate reliability. `cga' and `pso' do not repet the code. They are useful for testing.
 ### Improvements
 Contains a version that effectivly deal with permutation problem. There is another Readme there.
-Access the Overleaf link to know more
-[Overleaf link](https://www.overleaf.com/read/wvdqhdxrfzfc)
-
 ### What the other files contains?
 - 'make_presents.m' is the cost function
 - 'neighbour.mat' contains the topology, it is produced in the step 1.
@@ -16,4 +13,8 @@ Other files are not important
 - 'recycle_gift.mlx' do the exaustive search, if needed.
 - 'tightfig.m' is the function that makes the figure cooler, it is invoked in 2.
 - 'WattsStrogats' I have never used, it will create a different topology.
+### External links
+Access the Overleaf link to read my report
+[Overleaf link](https://www.overleaf.com/read/wvdqhdxrfzfc)
+Link to the lucidchart for the block chart [lucid chart](https://www.lucidchart.com/invitations/accept/c052cab4-5227-4052-8479-4a42bb04d734)
 
